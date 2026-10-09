@@ -1,14 +1,20 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+config({ path: [".env.local", ".env"] });
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("Set DATABASE_URL in .env.local or .env before running Drizzle Kit.");
+}
 
 export default defineConfig({
   schema: "./db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url:
-      process.env.DATABASE_URL ||
-      "postgresql://postgres:password@localhost:5432/mydb",
+    url: databaseUrl,
   },
-  tablesFilter: ["!pg_stat_monitor*", "!pg_stat_statements*"],
+  schemaFilter: ["public"],
+  tablesFilter: ["users", "posts"],
 });
